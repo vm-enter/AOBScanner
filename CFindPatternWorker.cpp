@@ -14,7 +14,7 @@ CFindPatternWorker::~CFindPatternWorker()
 void CFindPatternWorker::doWork(const FindPatternParam& param)
 {
 	// params
-	const char *_AoB = param.arrayOfBytes().toStdString().c_str();
+	const std::string _AoB = param.arrayOfBytes().toStdString();
 	const int order = param.order();
 
 	const unsigned long long moduleBaseAddress = param.moduleBaseAddress();
@@ -25,17 +25,17 @@ void CFindPatternWorker::doWork(const FindPatternParam& param)
 
 	const void *searchBuffer = bufferForLocal;
 	unsigned long remainingSize = bufferSize;
-	void *resultBuffer = nullptr;
+	const void *resultBuffer = nullptr;
 	for (int n = 0; n < order; n++)
 	{
 		// n result
 		if (n != 0)
 		{
-			searchBuffer = PBYTE(searchBuffer) + 1;
+			searchBuffer = PBYTE(resultBuffer) + 1;
 			remainingSize = ULONG_PTR(bufferEnd) - ULONG_PTR(searchBuffer);
 		}
 
-		resultBuffer = FindPatternA(searchBuffer, remainingSize, _AoB);
+		resultBuffer = FindPatternA(searchBuffer, remainingSize, _AoB.c_str());
 		if (resultBuffer == NULL)
 		{
 			// fail

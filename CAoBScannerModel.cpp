@@ -20,7 +20,7 @@ ITEM::ITEM()
 {
 	this->id = s_id++;
 	this->type = OFFSET_NORMAL;
-	this->order = 0;
+	this->order = 1;
 	this->offset = 0;
 	this->result = 0;
 	this->searched = false;
@@ -110,14 +110,8 @@ bool CAoBScannerModel::setData(const QModelIndex &index, const QVariant &value, 
 			}
 			case 1:
 			{
-				bool ok;
-				int i = value.toInt(&ok);
-				if (!ok)
-					return false;
-
-				item->type = i;
-				emit this->dataChanged(index, index);
-				return true;
+				const QString typeString = value.toString();
+				return false;
 			}
 			case 2:
 			{
@@ -159,6 +153,24 @@ bool CAoBScannerModel::setData(const QModelIndex &index, const QVariant &value, 
 
 				// update entire row
 				emit this->dataChanged(this->index(row, 0), this->index(row, this->columnCount() - 1));
+				return true;
+			}
+		}
+	}
+	else if (role == Qt::UserRole + 1)
+	{
+		auto &item = this->m_items[row];
+		switch (index.column())
+		{
+			case 1:
+			{
+				bool ok;
+				int i = value.toInt(&ok);
+				if (!ok)
+					return false;
+
+				item->type = i;
+				emit this->dataChanged(index, index);
 				return true;
 			}
 		}
