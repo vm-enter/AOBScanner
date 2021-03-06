@@ -153,6 +153,19 @@ void CMainWindow::OnContextMenuRequested(const QPoint &pos)
 	menu->addAction(QIcon(":/images/Search-64.png"), "Scan All", this, SLOT(OnScanAll()));
 	menu->addSeparator();
 
+	// ignore export
+	action = menu->addAction("Ignore", this, SLOT(OnIgnore()));
+	action->setData(index);
+	action->setEnabled(index.isValid());
+	menu->addAction(action);
+
+	// comment
+	action = menu->addAction("Comment", this, SLOT(OnComment()));
+	action->setData(index);
+	action->setEnabled(index.isValid());
+	menu->addAction(action);
+	menu->addSeparator();
+
 	// insert row
 	action = menu->addAction(QIcon(":/images/Add Row-64.png"), "Insert Row", this, SLOT(OnInsertRow()));
 	action->setData(index);
@@ -336,10 +349,22 @@ void CMainWindow::OnExport()
 	QTextStream stream(&file);
 	for (int row = 0; row < this->m_model->rowCount(); row++)
 	{
-		const QString name = this->m_model->data(this->m_model->index(row, 0)).toString();
+		struct ITEM* item = static_cast<ITEM*>(this->m_model->index(row, 0).internalPointer());
+
+		// skip
+		if (item->ignore)
+			continue;
+
+		const QString name = item->name;
 		if (name.isEmpty())
 		{
 			stream << tr("\r\n");
+			continue;
+		}
+
+		if (item->comment)
+		{
+			stream << tr("// %1\r\n").arg(name);
 			continue;
 		}
 
@@ -381,6 +406,30 @@ void CMainWindow::OnScanAll()
 	}
 
 	this->ScanAll();
+}
+
+void CMainWindow::OnIgnore()
+{
+	const QModelIndex& index = qobject_cast<QAction*>(sender())->data().toModelIndex();
+	if (index.isValid())
+	{
+		struct ITEM* item = static_cast<ITEM*>(index.internalPointer());
+
+		// set ignore
+		item->ignore = !item->ignore;
+	}
+}
+
+void CMainWindow::OnComment()
+{
+	const QModelIndex& index = qobject_cast<QAction*>(sender())->data().toModelIndex();
+	if (index.isValid())
+	{
+		struct ITEM* item = static_cast<ITEM*>(index.internalPointer());
+
+		// set comment
+		item->comment = !item->comment;
+	}
 }
 
 void CMainWindow::OnInsertRow()

@@ -43,6 +43,7 @@ private:
 	QString m_arrayOfBytes;
 	int m_type, m_offset, m_order;
 };
+
 Q_DECLARE_METATYPE(FindPatternParam);
 
 class CFindPatternWorker : public QObject

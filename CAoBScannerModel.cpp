@@ -23,6 +23,8 @@ ITEM::ITEM()
 	this->order = 1;
 	this->offset = 0;
 	this->result = 0;
+	this->ignore = false;
+	this->comment = false;
 	this->searched = false;
 }
 void ITEM::serialize(QSettings &settings) const
@@ -32,6 +34,9 @@ void ITEM::serialize(QSettings &settings) const
 	settings.setValue("order", this->order);
 	settings.setValue("offset", this->offset);
 	settings.setValue("pattern", this->pattern);
+	settings.setValue("result", this->result);
+	settings.setValue("ignore", this->ignore);
+	settings.setValue("comment", this->comment);
 }
 void ITEM::deserialize(QSettings &settings)
 {
@@ -40,7 +45,10 @@ void ITEM::deserialize(QSettings &settings)
 	this->type = settings.value("type").toInt();
 	this->order = settings.value("order").toInt();
 	this->offset = settings.value("offset").toInt();
-	this->result = 0;
+	this->result = settings.value("result").toULongLong();
+	this->ignore = settings.value("ignore").toBool();
+	this->comment = settings.value("comment").toBool();
+	//this->result = 0;
 	this->searched = false;
 }
 
@@ -87,7 +95,14 @@ QVariant CAoBScannerModel::data(const QModelIndex &index, int role) const
 		if (item->searched && item->result == 0)
 			return QColor(Qt::red);
 		else
+		{
+			if (item->ignore)
+				return QColor(Qt::yellow);
+			if (item->comment)
+				return QColor(Qt::green);
+
 			return QColor(Qt::transparent);
+		}		
 	}
 	return QVariant();
 }
@@ -144,7 +159,7 @@ bool CAoBScannerModel::setData(const QModelIndex &index, const QVariant &value, 
 			case 5:
 			{
 				bool ok;
-				qulonglong i = value.toULongLong(&ok);
+				qulonglong i = value.toString().toULongLong(&ok, value.toString().startsWith("0x") ? 16 : 10);
 				if (!ok)
 					return false;
 
@@ -311,7 +326,7 @@ Qt::ItemFlags CAoBScannerModel::flags(const QModelIndex &index) const
 {
 	// don't allow to edit column5(result)
 	auto flags = QAbstractTableModel::flags(index);
-	if (index.column() != 5)
+	//if (index.column() != 5)
 		flags |= Qt::ItemIsEditable;
 	return flags;
 }

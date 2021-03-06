@@ -5,7 +5,7 @@ enum OFFSET_TYPE
 	OFFSET_NORMAL = 0,
 	OFFSET_CALL,
 	OFFSET_PTR1,
-	OFFSET_PTR4
+	OFFSET_PTR4,
 };
 
 struct ITEM
@@ -20,6 +20,9 @@ public:
 
 	QString name, pattern;
 	int type, order, offset;
+
+	bool ignore;	// for export
+	bool comment;	// for comment
 
 	// for background color
 	bool searched;

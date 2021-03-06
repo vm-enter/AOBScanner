@@ -34,6 +34,8 @@ private slots:
 	void OnExport();
 	void OnScan();
 	void OnScanAll();
+	void OnIgnore();
+	void OnComment();
 	void OnInsertRow();
 	void OnRemoveRow();
 
